@@ -1,59 +1,74 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import scipy.signal as sp
 
-def func_senoidal(a_max, frec, fase, cant_muestras, frec_muestreo, v_medio):
+def func_senoidal (a_max, frec, fase, cant_muestras, frec_muestreo, v_medio):
+    
     Ts = 1/frec_muestreo
     t_final = cant_muestras * Ts
-    tt = np.arange(0, t_final, Ts)
-    xx = a_max * np.sin(2*np.pi*frec*tt + fase) + v_medio
+    tt = np.arange (0, t_final, Ts) # defino una sucesión de valores para el tiempo
+    xx = a_max * np.sin (2 * np.pi * frec * tt + fase) + v_medio # tt es un vector, por ende la función sin se evalúa para cada punto del mismo
+    # xx tendrá la misma dimensión que tt
+    
     return tt, xx
 
-plt.figure(figsize=(8, 8))   # <<---  ancho x alto en pulgadas
+a_max = 0
+frec = 0
+fase = 0
+cant_muestras = 0
+frec_muestreo = 0
+v_medio = 0
 
-# ---- Señal 1 ----
-tt_1, ss_1 = func_senoidal(1, 10, 0, 1000, 1000, 0)
-plt.subplot(5, 1, 1)
-plt.plot(tt_1, ss_1, color="black")
-plt.title("Señal 1 - 10 Hz")
-plt.xlabel("Tiempo [s]")
-plt.ylabel("Volts")
-plt.grid(True)
+### Señal 1 ###
+plt.figure(figsize=(8,8))
+tt_1, ss_1 = func_senoidal (a_max = 1, frec = 10, fase = 0, cant_muestras = 1000, frec_muestreo = 1000, v_medio = 0)
 
-# ---- Señal 2 ----
-tt_2, ss_2 = func_senoidal(1, 500, 0, 1000, 1000, 0)
-plt.subplot(5, 1, 2)
-plt.plot(tt_2, ss_2, color="black")
-plt.title("Señal 2 - 500 Hz")
-plt.xlabel("Tiempo [s]")
-plt.ylabel("Volts")
-plt.grid(True)
+plt.subplot (6, 1, 1)
+plt.plot (tt_1, ss_1, linestyle='-', color='black')
+plt.xlabel ("Tiempo")
+plt.ylabel ("Volts")
+plt.grid (True)
 
-# ---- Señal 3 ----
-tt_3, ss_3 = func_senoidal(1, 999, 0, 1000, 1000, 0)
-plt.subplot(5, 1, 3)
-plt.plot(tt_3, ss_3, color="black")
-plt.title("Señal 3 - 999 Hz")
-plt.xlabel("Tiempo [s]")
-plt.ylabel("Volts")
-plt.grid(True)
+### Señal 2 ###
 
-# ---- Señal 4 ----
-tt_4, ss_4 = func_senoidal(1, 1001, 0, 1000, 1000, 0)
-plt.subplot(5, 1, 4)
-plt.plot(tt_4, ss_4, color="black")
-plt.title("Señal 4 - 1001 Hz")
-plt.xlabel("Tiempo [s]")
-plt.ylabel("Volts")
-plt.grid(True)
+tt_2, ss_2 = func_senoidal (a_max = 1, frec = 500, fase = 0, cant_muestras = 1000, frec_muestreo = 1000, v_medio = 0)
 
-# ---- Señal 5 ----
-tt_5, ss_5 = func_senoidal(1, 2001, 0, 1000, 1000, 0)
-plt.subplot(5, 1, 5)
-plt.plot(tt_5, ss_5, color="black")
-plt.title("Señal 5 - 2001 Hz")
-plt.xlabel("Tiempo [s]")
-plt.ylabel("Volts")
-plt.grid(True)
+plt.subplot (6, 1, 2)
+plt.plot (tt_2, ss_2, linestyle='-', color='black')
+plt.xlabel ("Tiempo")
+plt.ylabel ("Volts")
+plt.grid (True)
+
+### Señal 3 ###
+
+tt_3, ss_3 = func_senoidal (a_max = 1, frec = 999, fase = 0, cant_muestras = 1000, frec_muestreo = 1000, v_medio = 0)
+
+plt.subplot (6, 1, 3)
+plt.plot (tt_3, ss_3, linestyle='-', color='black')
+plt.xlabel ("Tiempo")
+plt.ylabel ("Volts")
+plt.grid (True)
+
+### Señal 4 ###
+
+tt_4, ss_4 = func_senoidal (a_max = 1, frec = 1001, fase = 0, cant_muestras = 1000, frec_muestreo = 1000, v_medio = 0)
+
+plt.subplot (6, 1, 4)
+plt.plot (tt_4, ss_4, linestyle='-', color='black')
+plt.xlabel ("Tiempo")
+plt.ylabel ("Volts")
+plt.grid (True)
+
+### Señal 5 ###
+
+tt_5, ss_5 = func_senoidal (a_max = 1, frec = 2001, fase = 0, cant_muestras = 1000, frec_muestreo = 1000, v_medio = 0)
+
+plt.subplot (6, 1, 5)
+plt.plot (tt_5, ss_5, linestyle='-', color='black')
+plt.xlabel ("Tiempo")
+plt.ylabel ("Volts")
+plt.grid (True)
+
 
 plt.tight_layout()
-plt.show()
+plt.show ()
