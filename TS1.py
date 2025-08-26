@@ -2,9 +2,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy.signal as sp
 
-# -----------------------
+
 # Función senoidal
-# -----------------------
+
 def func_senoidal(a_max, frec, fase, cant_muestras, frec_muestreo, v_medio):
     Ts = 1/frec_muestreo
     t_final = cant_muestras * Ts
@@ -12,9 +12,10 @@ def func_senoidal(a_max, frec, fase, cant_muestras, frec_muestreo, v_medio):
     xx = a_max * np.sin(2 * np.pi * frec * tt + fase) + v_medio
     return tt, xx
 
-# -----------------------
+
 # Señales
-# -----------------------
+
+
 # Señal 1
 frec_muestreo1 = 30000
 cant_muestras1 = 100
@@ -59,9 +60,9 @@ pulso = np.zeros(len(tt_6))
 pulso[(tt_6 >= 0.004) & (tt_6 <= 0.006)] = 1.0
 energia6 = np.sum(pulso**2) * Ts6
 
-# -----------------------
+
 # Productos internos
-# -----------------------
+
 def producto_interno(x, y):
     return np.sum(x*y)
 
@@ -71,9 +72,9 @@ print("Producto interno Señal 1 - Señal 4:", producto_interno(ss_1, ss_clip))
 print("Producto interno Señal 1 - Señal 5:", producto_interno(ss_1, onda_cuadrada[:len(ss_1)]))
 print("Producto interno Señal 1 - Señal 6:", producto_interno(ss_1, pulso[:len(ss_1)]))
 
-# -----------------------
-# Bloque 1: Señales
-# -----------------------
+
+# Bloque 1 (plot): Señales
+
 plt.figure(figsize=(10,12))
 
 plt.subplot(6,1,1)
@@ -121,9 +122,9 @@ plt.title("Señal 6: Pulso rectangular")
 plt.tight_layout()
 plt.show()
 
-# -----------------------
-# Bloque 2: Correlaciones
-# -----------------------
+
+# Bloque 2(plot): Correlaciones
+
 plt.figure(figsize=(10,12))
 
 plt.subplot(6,1,1)
@@ -149,6 +150,32 @@ plt.title("Correlación Señal 1 - Señal 5")
 plt.subplot(6,1,6)
 plt.plot(sp.correlate(ss_1, pulso[:len(ss_1)], mode='full'), color='black')
 plt.title("Correlación Señal 1 - Señal 6")
+
+
+
+
+# Señal base (2 kHz)
+
+frec_muestreo1 = 30000
+cant_muestras1 = 100
+frec1 = 2000  # Hz
+
+# alfa = 2000 Hz, beta = 1000 Hz
+tt_1, sen_alfa = func_senoidal(1, frec1, 0, cant_muestras1, frec_muestreo1, 0)
+tt_2, sen_beta = func_senoidal(1, frec1/2, 0, cant_muestras1, frec_muestreo1, 0)
+
+# Para definir el coseno simplemente desfase el seno pi/2
+tt_3, cos_alfa_menos_beta = func_senoidal(1, frec1 - frec1/2, np.pi/2, cant_muestras1, frec_muestreo1, 0)
+tt_4, cos_alfa_mas_beta   = func_senoidal(1, frec1 + frec1/2, np.pi/2, cant_muestras1, frec_muestreo1, 0)
+
+
+identidad = 2*sen_alfa*sen_beta - cos_alfa_menos_beta + cos_alfa_mas_beta
+
+if max(abs(identidad)) < 1e-10:
+    print("✅ La identidad se cumple para toda frecuencia !")
+else:
+    print("❌ La identidad NO se cumple")
+
 
 plt.tight_layout()
 plt.show()
