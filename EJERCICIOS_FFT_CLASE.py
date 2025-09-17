@@ -21,7 +21,7 @@ def sen(ff,nn,amp=1,dc=0,ph=0,fs=2):
     return t,x
 
 t1,x1=sen(ff=(N/4)*df,nn=N, fs=fs)
-t2,x2=sen(ff=((N/4)+1)*df,nn=N, fs=fs)
+t2,x2=sen(ff=((N/4)+0.25)*df,nn=N, fs=fs)
 _,x3=sen(ff=((N/4)+0.5)*df,nn=N, fs=fs)
 
 
