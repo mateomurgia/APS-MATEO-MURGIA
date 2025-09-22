@@ -1,53 +1,72 @@
-import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.pyplot as plt
 from numpy.fft import fft
-import scipy.signal as sp
+import scipy.signal.windows as window
 
-def eje_temporal (N, fs):
-    
-    Ts = 1/fs
-    t_final = N * Ts
-    tt = np.arange (0, t_final, Ts)
-    return tt
-
-
-def func_senoidal (tt, frec, amp, fase = 0, v_medio = 0):
-    
-    xx = amp * np.sin (2 * np.pi * frec * tt + fase) + v_medio # tt es un vector, por ende la función sin se evalúa para cada punto del mismo
-    # xx tendrá la misma dimensión que tt
-    return xx
-R=200
-frec_rand2 = np.random.uniform(-2,2)
-SNR = 10 # SNR en dB
-amp_0 = np.sqrt(2) # amplitud en V
-N = 1000
+# ---------------- Parámetros ----------------
 fs = 1000
-df = fs / N # Hz, resolución espectral
+N  = 1000
+df = fs/N
+R  = 200
+Nfft = 10*N
 
-nn = np.arange (N) # vector adimensional de muestras
-ff = np.arange (N) * df # vector en frecuencia al escalar las muestras por la resolución espectral
-tt = eje_temporal (N = N, fs = fs)
+def func_senoidal(tt, frec, amp, fase=0, v_medio=0):
+    return amp*np.sin(2*np.pi*frec*tt + fase) + v_medio
 
-s_1 = func_senoidal (tt = tt, amp = amp_0, frec = N/4 + frec_rand2*df)
-tt_re = tt.reshape(N,1)
-frec_rand_re = frec_rand2.reshape(1,R)
+# --- Mallas tiempo y frecuencias por columna ---
+tt = np.arange(N)/fs
+tt_col = tt.reshape(N,1)                         # (N,1)
+fr_vec = np.random.uniform(-2, 2, R)             # (R,)
+f0_vec = (N/4 + fr_vec) * df                     # (R,) Hz
+f0_row = f0_vec.reshape(1,R)                     # (1,R)
+TT = np.tile(tt_col, (1,R))                      # (N,R)
+F0 = np.tile(f0_row, (N,1))                      # (N,R)
 
-X=np.tile(tt_re,)
-pot_ruido = amp_0**2 / (2*10**(SNR/10))        
-print (f"Potencia de SNR {pot_ruido:3.1f}")   
-                      
-ruido = np.random.normal (0, np.sqrt(pot_ruido), N)
-var_ruido = np.var (ruido)
-print (f"Potencia de ruido -> {var_ruido:3.3f}")
+# --- Señal + ruido (SNR en dB) ---
+amp_0 = np.sqrt(2)
+SNR = 3
+s_1 = func_senoidal(TT, F0, amp_0)               # (N,R)
 
-x_1 = s_1 + ruido  # modelo de señal
+P_signal = amp_0**2 / 2
+P_noise  = P_signal / (10**(SNR/10))
+ruido_mat = np.random.normal(0, np.sqrt(P_noise), size=(N,R))
+x_1 = s_1 + ruido_mat
 
-X_1ruido = (1/N)*fft (x_1)
-# print (np.var(x_1))
+print(f"Var ruido target={P_noise:.4f}  empírica≈{np.var(ruido_mat):.4f}")
 
+# --- Ventanas ---
+w_rect = np.ones((N,1))
+w_flat = window.flattop(N, sym=False).reshape(-1,1)
+w_bh   = window.blackmanharris(N, sym=False).reshape(-1,1)
+w_hann = window.hann(N, sym=False).reshape(-1,1)
 
-plt.plot (ff, 10*np.log10(2*np.abs(X_1ruido)**2), color='orange', label='X_1')
-plt.xlim((0,fs/2))
-plt.grid (True)
-plt.legend ()
-plt.show ()
+ventanas = [
+    ("rectangular",    w_rect),
+    ("flattop",        w_flat),
+    ("blackmanharris", w_bh),
+    ("hann",           w_hann),
+]
+
+# --- Semieje positivo con kpos ---
+kpos = slice(0, Nfft//2 + 1)
+f_pos = np.arange(Nfft)[kpos] * (fs/Nfft)
+
+# --- Un gráfico POR ventana, con TODOS los espectros (todas las columnas) ---
+for nombre, w in ventanas:
+    X = fft(x_1 * w, n=Nfft, axis=0) / N          # (Nfft,R)
+    P = np.abs(X)**2                               # (Nfft,R) potencia por bin
+    Pp_cols = P[kpos, :]                           # (Nfft/2+1, R)
+    Pp_cols = np.maximum(Pp_cols, np.finfo(float).tiny)
+    Pdb_cols = 10*np.log10(Pp_cols)
+
+    plt.figure()
+    # dibuja las R curvas; líneas finas y algo de transparencia para que no tape
+    plt.plot(f_pos, Pdb_cols, linewidth=0.6, alpha=0.6)
+    plt.title(f"Espectros – ventana {nombre}")
+    plt.xlim(0, fs/2)
+    plt.xlabel("Frecuencia [Hz]")
+    plt.ylabel("Potencia [dB]  (|FFT|^2 por realización)")
+    plt.grid(True, ls=':')
+    plt.tight_layout()
+
+plt.show()
