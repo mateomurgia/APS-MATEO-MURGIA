@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import scipy.io as sio
 from scipy.io.wavfile import write
 
-
+from scipy.signal import periodogram, welch
 #%%
 
 ##################
@@ -88,13 +88,35 @@ plt.plot(ppg)
 # Lectura de audio #
 ####################
 
-# Cargar el archivo CSV como un array de NumPy
-fs_audio, wav_data = sio.wavfile.read('la cucaracha.wav')
-# fs_audio, wav_data = sio.wavfile.read('prueba psd.wav')
-# fs_audio, wav_data = sio.wavfile.read('silbido.wav')
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.io import wavfile
+from scipy.signal import periodogram, welch
 
+# Leer audio tal cual
+fs, x = wavfile.read('la cucaracha.wav')
+
+# Periodograma (crudo)
+f1, Pxx1 = periodogram(x, fs=fs)
 plt.figure()
-plt.plot(wav_data)
+plt.plot(f1, 10*np.log10(Pxx1))
+plt.xlabel('Frecuencia [Hz]')
+plt.ylabel('PSD ')
+plt.title('Periodograma (crudo)')
+plt.grid(True)
+
+# Welch (promediado)
+f2, Pxx2 = welch(x, fs=fs)
+plt.figure()
+plt.plot(f2, 10*np.log10(Pxx2))
+plt.xlabel('Frecuencia [Hz]')
+plt.ylabel('PSD ')
+plt.title('PSD con Welch')
+plt.grid(True)
+
+plt.show()
+
+
 
 # si quieren oirlo, tienen que tener el siguiente módulo instalado
 # pip install sounddevice
