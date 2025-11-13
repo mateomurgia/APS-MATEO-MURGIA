@@ -131,7 +131,10 @@ plt.plot(ecg_one_lead[:50000], label = 'ecg raw')
 #plt.plot(ecg_filt_cheb2[:50000], label = 'cheby2')
 plt.plot(ecg_filt_butt_fase0[:50000], label = 'butter sin desfase')
 
+#%% Diseño FIR
 
+
+#%%
 plt.legend()
 
 # hb_1 = mat_struct['heartbeat_pattern1']
