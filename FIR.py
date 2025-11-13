@@ -39,7 +39,7 @@ w, h= freqz(fir_win, worN = np.logspace(-2, 2, 1000), fs = fs) #calcula rta en f
 fase = np.unwrap(np.angle(h)) #unwrap hace grafico continuo
 
 w_rad = w / (fs / 2) * np.pi
-gd = -np.diff(fase) / np.diff(w_rad) #retardo de grupo [rad/rad]
+retardo = -np.diff(fase) / np.diff(w_rad) #retardo de grupo [rad/rad]
 
 # --- Polos y ceros ---
 
@@ -66,7 +66,7 @@ plt.grid(True, which='both', ls=':')
 
 # Retardo de grupo
 plt.subplot(3,1,3)
-plt.plot(w[:-1], gd)
+plt.plot(w[:-1], retardo)
 plt.title('Retardo de Grupo ')
 plt.xlabel('Pulsación angular [r/s]')
 plt.ylabel('τg [# muestras]')
